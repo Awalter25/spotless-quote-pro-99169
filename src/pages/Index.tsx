@@ -4,6 +4,7 @@ import QuoteSummary from "@/components/QuoteSummary";
 import { Sparkles } from "lucide-react";
 
 export interface QuoteData {
+  quoterName: string;
   sqft: number;
   bathroomType: string;
   bathroomCount: number;
@@ -32,6 +33,7 @@ export interface QuoteData {
 
 const Index = () => {
   const [quoteData, setQuoteData] = useState<QuoteData>({
+    quoterName: "",
     sqft: 0,
     bathroomType: "standard",
     bathroomCount: 0,

@@ -28,8 +28,12 @@ const QuoteSummary = ({ quoteData, setQuoteData }: QuoteSummaryProps) => {
     doc.setFont("helvetica", "normal");
     doc.text(`Generated: ${new Date().toLocaleDateString()}`, 105, 28, { align: "center" });
     
+    if (quoteData.quoterName) {
+      doc.text(`Prepared by: ${quoteData.quoterName}`, 105, 34, { align: "center" });
+    }
+    
     // Space Details
-    let yPos = 45;
+    let yPos = quoteData.quoterName ? 48 : 45;
     doc.setFontSize(14);
     doc.setFont("helvetica", "bold");
     doc.text("Space Details", 20, yPos);

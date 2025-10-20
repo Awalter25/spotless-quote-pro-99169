@@ -4,7 +4,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { QuoteData } from "@/pages/Index";
-import { Building2, Sparkles, Wrench, Plus } from "lucide-react";
+import { Building2, Sparkles, Wrench, Plus, User } from "lucide-react";
 
 interface QuoteFormProps {
   quoteData: QuoteData;
@@ -25,6 +25,29 @@ const QuoteForm = ({ quoteData, setQuoteData }: QuoteFormProps) => {
 
   return (
     <div className="space-y-6">
+      {/* Quote Creator */}
+      <Card className="shadow-soft border-border border-primary/30">
+        <CardHeader>
+          <div className="flex items-center gap-2">
+            <User className="h-5 w-5 text-primary" />
+            <CardTitle>Quote Created By</CardTitle>
+          </div>
+          <CardDescription>Enter your name to be recorded on this quote</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-2">
+            <Label htmlFor="quoterName">Your Name</Label>
+            <Input
+              id="quoterName"
+              type="text"
+              value={quoteData.quoterName}
+              onChange={(e) => updateField("quoterName", e.target.value)}
+              placeholder="e.g., John Smith"
+            />
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Space Details */}
       <Card className="shadow-soft border-border">
         <CardHeader>
