@@ -27,6 +27,7 @@ export interface QuoteData {
   airFreshenerInstall: number;
   airFreshenerMaintenance: number;
   marginPercent: number;
+  serviceFrequency: string; // "one-time", "monthly", "biweekly", "weekly", "daily"
 }
 
 const Index = () => {
@@ -54,6 +55,7 @@ const Index = () => {
     airFreshenerInstall: 0,
     airFreshenerMaintenance: 0,
     marginPercent: 35,
+    serviceFrequency: "one-time",
   });
 
   return (

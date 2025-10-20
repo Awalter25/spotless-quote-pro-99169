@@ -317,6 +317,44 @@ const QuoteForm = ({ quoteData, setQuoteData }: QuoteFormProps) => {
           </div>
         </CardContent>
       </Card>
+
+      {/* Discounts */}
+      <Card className="shadow-soft border-border border-success/30">
+        <CardHeader>
+          <div className="flex items-center gap-2">
+            <Sparkles className="h-5 w-5 text-success" />
+            <CardTitle>Service Discounts</CardTitle>
+          </div>
+          <CardDescription>Apply discounts based on service frequency and size</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="serviceFrequency">Service Frequency</Label>
+            <Select value={quoteData.serviceFrequency} onValueChange={(v) => updateField("serviceFrequency", v)}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="one-time">One-time (0% discount)</SelectItem>
+                <SelectItem value="monthly">Monthly (5% discount)</SelectItem>
+                <SelectItem value="biweekly">Biweekly (10% discount)</SelectItem>
+                <SelectItem value="weekly">Weekly (15% discount)</SelectItem>
+                <SelectItem value="daily">Daily (20% discount)</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          
+          <div className="p-4 bg-success/5 border border-success/20 rounded-lg">
+            <h4 className="text-sm font-medium mb-2 text-success">Area-based Discount (Automatic)</h4>
+            <ul className="text-xs text-muted-foreground space-y-1">
+              <li>• 0-2,000 sqft: No discount</li>
+              <li>• 2,000-10,000 sqft: 10% discount</li>
+              <li>• 10,000-25,000 sqft: 15% discount</li>
+              <li>• 25,000+ sqft: 20% discount</li>
+            </ul>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 };

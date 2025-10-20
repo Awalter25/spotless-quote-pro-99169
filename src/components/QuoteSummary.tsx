@@ -105,8 +105,30 @@ const QuoteSummary = ({ quoteData, setQuoteData }: QuoteSummaryProps) => {
       airFreshenerInstallCost +
       airFreshenerMaintenanceCost;
 
-    const margin = totalCost * (quoteData.marginPercent / 100);
-    const finalQuote = totalCost + margin;
+    // Service frequency discount
+    const serviceFrequencyDiscounts: Record<string, number> = {
+      "one-time": 0,
+      "monthly": 0.05,
+      "biweekly": 0.10,
+      "weekly": 0.15,
+      "daily": 0.20,
+    };
+    const serviceFrequencyDiscount = totalCost * serviceFrequencyDiscounts[quoteData.serviceFrequency];
+
+    // Area-based discount (automatic based on sqft)
+    let areaDiscountPercent = 0;
+    if (quoteData.sqft >= 25000) {
+      areaDiscountPercent = 0.20;
+    } else if (quoteData.sqft >= 10000) {
+      areaDiscountPercent = 0.15;
+    } else if (quoteData.sqft >= 2000) {
+      areaDiscountPercent = 0.10;
+    }
+    const areaDiscount = totalCost * areaDiscountPercent;
+
+    const totalAfterDiscounts = totalCost - serviceFrequencyDiscount - areaDiscount;
+    const margin = totalAfterDiscounts * (quoteData.marginPercent / 100);
+    const finalQuote = totalAfterDiscounts + margin;
 
     return {
       breakdown: {
@@ -130,6 +152,9 @@ const QuoteSummary = ({ quoteData, setQuoteData }: QuoteSummaryProps) => {
         "Air Freshener Maintenance": airFreshenerMaintenanceCost,
       },
       totalCost,
+      serviceFrequencyDiscount,
+      areaDiscount,
+      totalAfterDiscounts,
       margin,
       finalQuote,
     };
@@ -153,8 +178,24 @@ const QuoteSummary = ({ quoteData, setQuoteData }: QuoteSummaryProps) => {
         <CardContent className="space-y-6">
           <div className="space-y-2">
             <div className="flex justify-between items-center">
-              <span className="text-sm text-muted-foreground">Total Cost</span>
+              <span className="text-sm text-muted-foreground">Subtotal</span>
               <span className="text-lg font-medium">${costs.totalCost.toFixed(2)}</span>
+            </div>
+            {costs.serviceFrequencyDiscount > 0 && (
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-success">Service Frequency Discount</span>
+                <span className="text-sm text-success">-${costs.serviceFrequencyDiscount.toFixed(2)}</span>
+              </div>
+            )}
+            {costs.areaDiscount > 0 && (
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-success">Area-based Discount</span>
+                <span className="text-sm text-success">-${costs.areaDiscount.toFixed(2)}</span>
+              </div>
+            )}
+            <div className="flex justify-between items-center pt-2 border-t border-border/50">
+              <span className="text-sm text-muted-foreground">Total after Discounts</span>
+              <span className="text-lg font-medium">${costs.totalAfterDiscounts.toFixed(2)}</span>
             </div>
             <div className="flex justify-between items-center">
               <span className="text-sm text-muted-foreground">Margin ({quoteData.marginPercent}%)</span>
