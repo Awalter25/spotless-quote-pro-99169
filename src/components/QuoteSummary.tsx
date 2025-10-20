@@ -6,6 +6,8 @@ import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import { FileText, Download } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { jsPDF } from "jspdf";
+import { toast } from "@/hooks/use-toast";
 
 interface QuoteSummaryProps {
   quoteData: QuoteData;
@@ -13,6 +15,127 @@ interface QuoteSummaryProps {
 }
 
 const QuoteSummary = ({ quoteData, setQuoteData }: QuoteSummaryProps) => {
+  const generatePDF = () => {
+    const doc = new jsPDF();
+    const costs = calculateCosts();
+    
+    // Header
+    doc.setFontSize(20);
+    doc.setFont("helvetica", "bold");
+    doc.text("Commercial Cleaning Quote", 105, 20, { align: "center" });
+    
+    doc.setFontSize(10);
+    doc.setFont("helvetica", "normal");
+    doc.text(`Generated: ${new Date().toLocaleDateString()}`, 105, 28, { align: "center" });
+    
+    // Space Details
+    let yPos = 45;
+    doc.setFontSize(14);
+    doc.setFont("helvetica", "bold");
+    doc.text("Space Details", 20, yPos);
+    yPos += 8;
+    
+    doc.setFontSize(10);
+    doc.setFont("helvetica", "normal");
+    doc.text(`Square Footage: ${quoteData.sqft.toLocaleString()} sqft`, 20, yPos);
+    yPos += 6;
+    doc.text(`Flooring Type: ${quoteData.flooringType}`, 20, yPos);
+    yPos += 6;
+    doc.text(`Bathrooms: ${quoteData.bathroomCount} (${quoteData.bathroomType})`, 20, yPos);
+    yPos += 6;
+    doc.text(`Building Age: ${quoteData.buildingAge} years`, 20, yPos);
+    yPos += 6;
+    doc.text(`Service Frequency: ${quoteData.serviceFrequency}`, 20, yPos);
+    yPos += 12;
+    
+    // Cost Breakdown
+    doc.setFontSize(14);
+    doc.setFont("helvetica", "bold");
+    doc.text("Cost Breakdown", 20, yPos);
+    yPos += 8;
+    
+    doc.setFontSize(10);
+    doc.setFont("helvetica", "normal");
+    
+    Object.entries(costs.breakdown)
+      .filter(([_, value]) => value > 0)
+      .forEach(([key, value]) => {
+        doc.text(key, 20, yPos);
+        doc.text(`$${value.toFixed(2)}`, 180, yPos, { align: "right" });
+        yPos += 6;
+        
+        // Add new page if needed
+        if (yPos > 270) {
+          doc.addPage();
+          yPos = 20;
+        }
+      });
+    
+    yPos += 4;
+    doc.line(20, yPos, 190, yPos);
+    yPos += 8;
+    
+    // Subtotal and Discounts
+    doc.setFont("helvetica", "bold");
+    doc.text("Subtotal", 20, yPos);
+    doc.text(`$${costs.totalCost.toFixed(2)}`, 180, yPos, { align: "right" });
+    yPos += 8;
+    
+    if (costs.serviceFrequencyDiscount > 0) {
+      doc.setTextColor(34, 197, 94); // green
+      doc.setFont("helvetica", "normal");
+      doc.text("Service Frequency Discount", 20, yPos);
+      doc.text(`-$${costs.serviceFrequencyDiscount.toFixed(2)}`, 180, yPos, { align: "right" });
+      yPos += 6;
+    }
+    
+    if (costs.areaDiscount > 0) {
+      doc.setTextColor(34, 197, 94); // green
+      doc.text("Area-based Discount", 20, yPos);
+      doc.text(`-$${costs.areaDiscount.toFixed(2)}`, 180, yPos, { align: "right" });
+      yPos += 6;
+    }
+    
+    doc.setTextColor(0, 0, 0); // reset to black
+    yPos += 2;
+    doc.line(20, yPos, 190, yPos);
+    yPos += 8;
+    
+    // Total after discounts
+    doc.setFont("helvetica", "bold");
+    doc.text("Total after Discounts", 20, yPos);
+    doc.text(`$${costs.totalAfterDiscounts.toFixed(2)}`, 180, yPos, { align: "right" });
+    yPos += 8;
+    
+    doc.setFont("helvetica", "normal");
+    doc.text(`Margin (${quoteData.marginPercent}%)`, 20, yPos);
+    doc.text(`+$${costs.margin.toFixed(2)}`, 180, yPos, { align: "right" });
+    yPos += 8;
+    
+    doc.line(20, yPos, 190, yPos);
+    yPos += 10;
+    
+    // Final Quote
+    doc.setFontSize(16);
+    doc.setFont("helvetica", "bold");
+    doc.text("Final Quote", 20, yPos);
+    doc.text(`$${costs.finalQuote.toFixed(2)}`, 180, yPos, { align: "right" });
+    
+    // Footer
+    doc.setFontSize(8);
+    doc.setFont("helvetica", "italic");
+    doc.setTextColor(128, 128, 128);
+    doc.text("Thank you for your business!", 105, 285, { align: "center" });
+    
+    // Save the PDF
+    doc.save(`cleaning-quote-${new Date().toISOString().split('T')[0]}.pdf`);
+    
+    toast({
+      title: "Quote Downloaded",
+      description: "Your PDF quote has been downloaded successfully.",
+    });
+  };
+
   const calculateCosts = () => {
     // Floor rates based on type
     const floorRates: Record<string, number> = {
@@ -232,7 +355,7 @@ const QuoteSummary = ({ quoteData, setQuoteData }: QuoteSummaryProps) => {
             </div>
           </div>
 
-          <Button className="w-full" size="lg">
+          <Button className="w-full" size="lg" onClick={generatePDF}>
             <Download className="mr-2 h-4 w-4" />
             Download Quote
           </Button>
